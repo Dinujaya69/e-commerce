@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import { ShoppingCart, Search, Menu, Facebook, Twitter, Instagram, Laptop, Cpu, HardDrive } from 'lucide-react'
+import {  Laptop, Cpu, HardDrive } from 'lucide-react'
 
 export default function Home() {
   return (
