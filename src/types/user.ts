@@ -1,3 +1,4 @@
+/*eslint-disable @typescript-eslint/no-empty-object-type*/
 export interface User {
     _id: string;
     full_name: string;

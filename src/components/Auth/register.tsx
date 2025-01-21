@@ -49,12 +49,12 @@ const Register = () => {
         });
         router.push("/auth/login");
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error("Registration error:", err);
       Swal.fire({
         icon: "error",
         title: "Registration Failed",
-        text: err?.data?.message || "Something went wrong. Please try again.",
+        text: "Something went wrong. Please try again.",
       });
     }
   };

@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { products } from '../../data/product';
 import {Product} from '@/types/product'
-import { apiSlice } from "../apiSlice";
+
 // Define the initial state as an array of products
 const initialState: Product[] = products;
 

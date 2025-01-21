@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useLoginMutation } from "@/Redux/features/authApiSlice";
 import { setCredentials, selectuser } from "@/Redux/features/authSlice";
 import Swal from "sweetalert2";
+import type { User } from "@/types/user"
 
 const Login = () => {
   const router = useRouter();
@@ -33,8 +34,8 @@ const Login = () => {
       // Check if response is the direct user and token data
       if ("user" in response && "token" in response) {
         dispatch(setCredentials({
-          user: response.user,
-          token: response.token
+          user: response.user as User,
+          token: response.token as string
         }));
       }
       // Check if data is nested under a data property
@@ -54,10 +55,10 @@ const Login = () => {
         text: "Login successful",
       });
 
-    } catch (err: any) {
+    } catch (err) {
       console.error("Login error details:", err);
 
-      const errorMessage = err.data?.message || err.message || 'Something went wrong during login';
+      const errorMessage =  'Something went wrong during login';
       
       Swal.fire({
         icon: "error",

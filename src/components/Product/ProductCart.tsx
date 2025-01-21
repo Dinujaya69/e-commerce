@@ -1,7 +1,7 @@
 "use client";
 import React from 'react'
 import Image from "next/image";
-import { products } from '@/data/product';
+
 import { useSelector } from 'react-redux';
 import type { RootState } from '@/Redux/store/store'
 //import { useGetProductsQuery } from '@/Redux/features/productSlice';
