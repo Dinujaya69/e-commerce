@@ -1,22 +1,62 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Swal from "sweetalert2";
+import { useRegisterMutation } from "@/Redux/features/authApiSlice";
 
+ interface Register{
+  name: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+ }
 const Register = () => {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
+  const [register, { isLoading }] = useRegisterMutation();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsLoading(true);
 
-    // Add your registration logic here
-    setTimeout(() => {
-      setIsLoading(false);
-      router.push("/login");
-    }, 1000);
+    if (formData.password !== formData.confirmPassword) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Passwords do not match",
+      });
+      return;
+    }
+
+    try {
+      const response = await register({
+        full_name: formData.name,
+        email: formData.email,
+        password: formData.password,
+      }).unwrap();
+
+      if (response) {
+        Swal.fire({
+          icon: "success",
+          title: "Account Created",
+          text: "Your account has been successfully created.",
+        });
+        router.push("/auth/login");
+      }
+    } catch (err: any) {
+      console.error("Registration error:", err);
+      Swal.fire({
+        icon: "error",
+        title: "Registration Failed",
+        text: err?.data?.message || "Something went wrong. Please try again.",
+      });
+    }
   };
 
   return (
@@ -35,6 +75,8 @@ const Register = () => {
               id="name"
               type="text"
               placeholder="Enter your full name"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               required
               className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
@@ -47,6 +89,8 @@ const Register = () => {
               id="email"
               type="email"
               placeholder="Enter your email"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               required
               className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
@@ -59,6 +103,8 @@ const Register = () => {
               id="password"
               type="password"
               placeholder="Create a password"
+              value={formData.password}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               required
               className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
@@ -74,6 +120,10 @@ const Register = () => {
               id="confirmPassword"
               type="password"
               placeholder="Confirm your password"
+              value={formData.confirmPassword}
+              onChange={(e) =>
+                setFormData({ ...formData, confirmPassword: e.target.value })
+              }
               required
               className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />

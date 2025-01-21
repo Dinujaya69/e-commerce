@@ -1,23 +1,78 @@
 "use client";
-
-import React, { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useLoginMutation } from "@/Redux/features/authApiSlice";
+import { setCredentials, selectuser } from "@/Redux/features/authSlice";
+import Swal from "sweetalert2";
 
 const Login = () => {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const dispatch = useDispatch();
+  const [login, { isLoading }] = useLoginMutation();
+  const user = useSelector(selectuser);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
 
-    // Add your login logic here
-    setTimeout(() => {
-      setIsLoading(false);
-      router.push("/products");
-    }, 1000);
+    try {
+      // Log the form data being sent
+      console.log("Sending login request with:", formData);
+
+      const response = await login(formData).unwrap();
+
+      // Log the full response to see its structure
+      console.log("Raw API Response:", response);
+
+      // Check if response is the direct user and token data
+      if ("user" in response && "token" in response) {
+        dispatch(setCredentials({
+          user: response.user,
+          token: response.token
+        }));
+      }
+      // Check if data is nested under a data property
+      else if (response.data?.user && response.data?.token) {
+        dispatch(setCredentials({
+          user: response.data.user,
+          token: response.data.token
+        }));
+      }
+      else {
+        throw new Error('Invalid response format from server');
+      }
+
+      Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: "Login successful",
+      });
+
+    } catch (err: any) {
+      console.error("Login error details:", err);
+
+      const errorMessage = err.data?.message || err.message || 'Something went wrong during login';
+      
+      Swal.fire({
+        icon: "error",
+        title: "Login Failed",
+        text: errorMessage,
+      });
+    }
   };
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user) {
+      router.push("/");
+    }
+  }, [user, router]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
@@ -36,6 +91,10 @@ const Login = () => {
               type="email"
               placeholder="Enter your email"
               required
+              value={formData.email}
+              onChange={(e) =>
+                setFormData({ ...formData, email: e.target.value })
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
@@ -48,15 +107,17 @@ const Login = () => {
               type="password"
               placeholder="Enter your password"
               required
+              value={formData.password}
+              onChange={(e) =>
+                setFormData({ ...formData, password: e.target.value })
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
           <button
             type="submit"
             disabled={isLoading}
-            className={`w-full px-4 py-2 text-white font-semibold rounded-lg ${
-              isLoading ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
-            }`}
+            className={`w-full px-4 py-2 text-white font-semibold rounded-lg ${isLoading ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"}`}
           >
             {isLoading ? "Logging in..." : "Login"}
           </button>
