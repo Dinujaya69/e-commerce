@@ -1,17 +1,24 @@
 "use client";
-import React from 'react';
+import React from "react";
 import Image from "next/image";
-import { useGetProductsQuery } from '@/Redux/features/productSlice';
+import { useGetProductsQuery } from "@/Redux/features/productSlice";
+import { BASE_URL } from "@/utils/apiConfig";
 
 const ProductCart = () => {
   const { data: products = [], isLoading, isError } = useGetProductsQuery();
 
   if (isLoading) {
-    return <p className="text-center text-lg font-semibold">Loading products...</p>;
+    return (
+      <p className="text-center text-lg font-semibold">Loading products...</p>
+    );
   }
 
   if (isError) {
-    return <p className="text-center text-red-500 text-lg font-semibold">Failed to load products.</p>;
+    return (
+      <p className="text-center text-red-500 text-lg font-semibold">
+        Failed to load products.
+      </p>
+    );
   }
 
   return (
@@ -26,16 +33,22 @@ const ProductCart = () => {
             >
               <div className="relative h-[200px] w-full">
                 <Image
-                  src={product.image?.startsWith("http") ? product.image : `/uploads/${product.image}`}
+                  src={`${BASE_URL}/${product.image}`}
                   alt={product.ProductName || "Product Image"}
                   fill
                   className="object-cover"
                 />
               </div>
               <div className="p-4">
-                <h2 className="text-xl font-semibold mb-2">{product.ProductName || "Unnamed Product"}</h2>
-                <p className="text-gray-600 mb-4">{product.description || "No description available."}</p>
-                <p className="text-2xl font-bold text-purple-600">${product.price ?? "N/A"}</p>
+                <h2 className="text-xl font-semibold mb-2">
+                  {product.ProductName || "Unnamed Product"}
+                </h2>
+                <p className="text-gray-600 mb-4">
+                  {product.description || "No description available."}
+                </p>
+                <p className="text-2xl font-bold text-purple-600">
+                  ${product.price ?? "N/A"}
+                </p>
               </div>
               <div className="p-4 pt-0">
                 <button className="w-full px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition">
@@ -48,6 +61,6 @@ const ProductCart = () => {
       </div>
     </div>
   );
-}
+};
 
 export default ProductCart;
